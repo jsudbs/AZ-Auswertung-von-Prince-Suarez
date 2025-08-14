@@ -2,196 +2,186 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>RP-Arbeitszeugnis → USSS-Rang</title>
+<title>Arbeitszeugnis & Rang-Konverter</title>
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #0d0d0d;
-        color: #f0f0f0;
-        padding: 20px;
-    }
-    h1, h2 {
-        color: #4cafef;
-    }
-    .org-select {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-bottom: 20px;
-    }
-    .org-btn {
-        padding: 8px 15px;
-        border: none;
-        background: #222;
-        color: #fff;
-        cursor: pointer;
-        border-radius: 5px;
-    }
-    .org-btn.active {
-        background: #4cafef;
-    }
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 8px;
-        margin-bottom: 20px;
-    }
-    label {
-        background: #1a1a1a;
-        padding: 8px;
-        border-radius: 5px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    input[type="checkbox"] {
-        transform: scale(1.2);
-        cursor: pointer;
-    }
-    button {
-        padding: 10px 20px;
-        background: #4cafef;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 1em;
-    }
-    button:hover {
-        background: #368fca;
-    }
-    .result {
-        margin-top: 20px;
-        font-size: 1.4em;
-        font-weight: bold;
-        color: #4cafef;
-    }
-    footer {
-        margin-top: 40px;
-        text-align: center;
-        font-size: 0.9em;
-        color: #888;
-    }
+body {
+    font-family: Arial, sans-serif;
+    background: url('hintergrund.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: -1;
+}
+header {
+    background-color: rgba(0, 68, 170, 0.8);
+    padding: 20px;
+    text-align: center;
+    font-size: 1.5em;
+    border-bottom: 2px solid #003366;
+}
+main {
+    max-width: 900px;
+    margin: 20px auto;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+textarea, select, input[type="number"] {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+button {
+    background-color: #0044aa;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+button:hover {
+    background-color: #003388;
+}
+#results {
+    margin-top: 20px;
+    background: rgba(248, 249, 255, 0.15);
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+.training-list {
+    margin-top: 15px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+}
+.training-card {
+    background: rgba(0, 68, 170, 0.8);
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: 0.2s;
+}
+.training-card.disabled {
+    background: rgba(100, 100, 100, 0.5);
+    cursor: not-allowed;
+}
+.training-card.selected {
+    border-color: #00ffcc;
+}
+.training-card h4 {
+    margin: 0;
+    font-size: 14px;
+}
+.training-card small {
+    display: block;
+    font-size: 11px;
+    margin-top: 4px;
+}
 </style>
 </head>
 <body>
-
-<h1>Arbeitszeugnis-Auswertung → USSS-Rang</h1>
-
-<h2>1️⃣ Organisation wählen</h2>
-<div class="org-select" id="orgSelect"></div>
-
-<h2>2️⃣ Rang auswählen</h2>
-<div id="rangGrid" class="grid"></div>
-
-<h2>3️⃣ Ausbildungen auswählen</h2>
-<div id="ausbildungenGrid" class="grid"></div>
-
-<button onclick="berechneRang()">Auswerten</button>
-
-<div id="ergebnis" class="result"></div>
-
-<footer>Erstellt von Prince Suarez | 261820</footer>
-
+<header>Arbeitszeugnis Auswerter & Rang-Konverter</header>
+<main>
+    <select id="orgSelect">
+        <option value="LSPD">LSPD</option>
+        <option value="FIB">FIB</option>
+        <option value="SAHP">SAHP</option>
+        <option value="USSS">USSS</option>
+    </select>
+    <input type="number" id="rankInput" placeholder="Rang eingeben..." min="1">
+    <textarea id="azText" placeholder="Arbeitszeugnis hier einfügen..."></textarea>
+    <div class="training-list" id="trainingList"></div>
+    <button onclick="analyzeAZ()">Auswerten</button>
+    <button onclick="resetAll()">Reset</button>
+    <div id="results"></div>
+    <p style="text-align:center; margin-top:20px; font-size:12px; color:#ccc;">
+        Erstellt von Prince Suarez | 261820
+    </p>
+</main>
 <script>
-const orgaRänge = {
-    "LSPD": [
-        "30. Chief of Police","29. Deputy Chief of Police","28. Assistant Chief of Police","27. Chief of Department","26. Director of Department","25. Deputy Director of Department","24. Police Inspector","23. Police Captain","22. HR Manager","21. F.O.R.C.E Officer","20. S.W.A.T Captain","19. Press Associator","18. Special Police Officer","17. Senior Lieutenant","16. Lieutenant","15. Sergeant First Class","14. Sergeant","13. Senior Corporal","12. Corporal","11. Detective","10. Supervising Officer","9. Instructing Officer","8. Senior Officer","7. Officer First Class","6. Officer 2","5. Officer 1","4. Rookie","3. Traffic Officer","2. Cadet","1. Suspended"
-    ],
-    "FIB": [
-        "30. Director of FIB","29. Deputy Director of FIB","28. Assistant Director of FIB","27. Associate Director of FIB","26. Chief of Staff","25. Division Chief","24. Deputy Division Chief","23. Special Agent in Charge","22. Commander","20. Senior Inspector","19. Inspector","18. Agent of Administration","17. Elite Agent","16. Supervisory Agent","15. Senior Special Agent","14. Special Agent","13. Senior Agent","12. Federal Agent","10. Field Agent","9. Agent","8. Junior Agent","7. Agent in Education"
-    ],
-    "SAHP": [
-        "30. Sheriff of SAHP","29. Deputy Sheriff of SAHP","28. Assistant Sheriff of SAHP","27. Advising Sheriff of SAHP","26. Administration Chief","25. C.O.B.R.A. Commander","24. Chief of Division","23. Ass. Chief of Division","22. State Major","21. State Captain","20. Administrative Ass.","19. C.O.B.R.A. Captain","18. Enforcement Supervisor","17. Press Associator","16. Lieutenant","15. Sergeant","14. Detective","13. Corporal","12. Supervising Trooper","11. Master Trooper","10. Trooper First Class","9. Trooper","8. TOW Sergeant","7. Trooper in Education","6. TOW Officer","5. SP Trainee Officer","4. SAHP Bewerber","3. TOW Bewerber","2. SP Bewerber","1. Suspended"
-    ],
-    "NG": [
-        "30. NG | General of the Army","29. NG | Lieutenant General","28. NG | Major General","27. NG | Brigadier General","26. NG | Colonel","25. NG | Lieutenant Colonel","24. NG | Major","23. NG | Captain","22. NG | Commander","21. NG | First Lieutenant","20. NG | Sentinel Guard","19. Second Lieutenant","18. Sergeant Major","17. Veteran","16. First Sergeant","15. Master Sergeant","14. Sergeant First Class","13. Staff Sergeant","12. Sergeant","11. Corporal","10. Specialist","9. Private First Class","8. Private Second Class","7. Private","6. Recruit","4. Frei","3. Facility Manager","2. Suspendiert","1. Kadett"
-    ]
+const rankMap = {
+    'LSPD': {20: 7, 15: 5, 10: 3},
+    'FIB': {7: 20, 5: 15, 3: 10}
 };
 
-const ausbildungen = ["Streife","GA","EHK","PS/OS","EV","EMS","Konvoi","OKFA","CT","Flug","SG"];
+const trainings = [
+    { name: "Streife", minRank: 10 },
+    { name: "GA", minRank: 1 },
+    { name: "EHK", minRank: 2 },
+    { name: "PS/OS", minRank: 2 },
+    { name: "EV", minRank: 2 },
+    { name: "EMS", minRank: 4 },
+    { name: "Konvoi", minRank: 4 },
+    { name: "OKFA", minRank: 4 },
+    { name: "CT", minRank: 6 },
+    { name: "Flug", minRank: 7 },
+    { name: "SG", minRank: 9 }
+];
 
-const usssRangnamen = {
-    1:"Visitor / Suspended",2:"Junior Agent",3:"Field Agent",2:"[USSS] Junior Agent",
-    4:"[USSS] Field Agent",6:"[USSS] First Class Agent",7:"Sergeant",7:"[USSS] Senior Agent ",
-    9:"[USSS] Special Agent",10:"[USSS] Sergeant",11:"[USSS] Lieutenant",13:"[USSS] Captain"
-};
-
-function ladeOrgs(){
-    const orgContainer=document.getElementById("orgSelect");
-    for(let org in orgaRänge){
-        const btn=document.createElement("button");
-        btn.classList.add("org-btn");
-        btn.innerText=org;
-        btn.onclick=()=>orgAuswählen(org,btn);
-        orgContainer.appendChild(btn);
-    }
-}
-
-function orgAuswählen(org,btn){
-    document.querySelectorAll(".org-btn").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    const rangGrid=document.getElementById("rangGrid");
-    rangGrid.innerHTML="";
-    orgaRänge[org].forEach((rang,index)=>{
-        const label=document.createElement("label");
-        const checkbox=document.createElement("input");
-        checkbox.type="checkbox";
-        checkbox.name="rang";
-        checkbox.value=rang;
-        checkbox.onchange=()=>{
-            document.querySelectorAll('input[name="rang"]').forEach(cb=>{if(cb!==checkbox)cb.checked=false;});
-        };
-        label.appendChild(checkbox);
-        label.appendChild(document.createTextNode(rang));
-        rangGrid.appendChild(label);
+function renderTrainingList(rank) {
+    const container = document.getElementById('trainingList');
+    container.innerHTML = '';
+    trainings.forEach(t => {
+        const card = document.createElement('div');
+        card.className = 'training-card' + (rank < t.minRank ? ' disabled' : '');
+        card.innerHTML = `<h4>${t.name}</h4><small>ab Rang ${t.minRank}</small>`;
+        if (rank >= t.minRank) {
+            card.addEventListener('click', () => {
+                card.classList.toggle('selected');
+            });
+        }
+        container.appendChild(card);
     });
 }
 
-function ladeAusbildungen(){
-    const grid=document.getElementById("ausbildungenGrid");
-    ausbildungen.forEach(aus=>{
-        const label=document.createElement("label");
-        const checkbox=document.createElement("input");
-        checkbox.type="checkbox";
-        checkbox.value=aus;
-        label.appendChild(checkbox);
-        label.appendChild(document.createTextNode(aus));
-        grid.appendChild(label);
-    });
-}
-
-function berechneRang(){
-    const gewählterRang=Array.from(document.querySelectorAll('input[name="rang"]:checked'))[0];
-    if(!gewählterRang){
-        document.getElementById("ergebnis").innerHTML="❌ Bitte einen Rang auswählen.";
-        return;
+function analyzeAZ() {
+    const text = document.getElementById('azText').value;
+    const org = document.getElementById('orgSelect').value;
+    let rank = parseInt(document.getElementById('rankInput').value) || null;
+    if (!rank) {
+        const match = text.match(/Rang\s*(\d+)/i);
+        if (match) rank = parseInt(match[1]);
     }
-    const rangNummer=parseInt(gewählterRang.value.split(".")[0]);
-    let usssRang=mapToUSSS(rangNummer);
-    const ausbildungsCount=document.querySelectorAll('#ausbildungenGrid input:checked').length;
-    usssRang+=Math.floor(ausbildungsCount/2);
-    if(usssRang>13)usssRang=13;
-    const rangName=usssRangnamen[usssRang]||"Unbekannt";
-    document.getElementById("ergebnis").innerHTML=`➡ USSS-Rang: <span style="color:#00ff99">${usssRang} – ${rangName}</span>`;
+
+    let result = '';
+    if (rank && org) {
+        result += `<p><strong>Organisation:</strong> ${org}</p>`;
+        result += `<p><strong>Rang:</strong> ${rank}</p>`;
+        if (rankMap[org] && rankMap[org][rank]) {
+            result += `<p><strong>Äquivalenter Rang in anderer Orga:</strong> ${rankMap[org][rank]}</p>`;
+        }
+        renderTrainingList(rank);
+    } else {
+        result = '<p style="color:red;">Keine gültigen Daten gefunden.</p>';
+        document.getElementById('trainingList').innerHTML = '';
+    }
+    document.getElementById('results').innerHTML = result;
 }
 
-function mapToUSSS(orgRang){
-    if(orgRang>=28) return 13;
-    if(orgRang>=25) return 11;
-    if(orgRang>=22) return 10;
-    if(orgRang>=19) return 10;
-    if(orgRang>=13) return 7;
-    if(orgRang>=10) return 6;
-    if(orgRang>=4) return 4;
-    if(orgRang>=2) return 2;
-    return 1;
+function resetAll() {
+    document.getElementById('azText').value = '';
+    document.getElementById('rankInput').value = '';
+    document.getElementById('results').innerHTML = '';
+    document.getElementById('trainingList').innerHTML = '';
+    document.getElementById('orgSelect').selectedIndex = 0;
 }
-
-ladeOrgs();
-ladeAusbildungen();
 </script>
-
 </body>
 </html>
