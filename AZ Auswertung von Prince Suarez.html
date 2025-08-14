@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Arbeitszeugnis & Rang-Konverter</title>
+<title>Rang-Konverter & Trainingsübersicht</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -35,7 +35,7 @@ main {
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
-textarea, select, input[type="number"] {
+select, input[type="number"] {
     width: 100%;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -97,7 +97,7 @@ button:hover {
 </style>
 </head>
 <body>
-<header>Arbeitszeugnis Auswerter & Rang-Konverter</header>
+<header>Rang-Konverter & Trainingsübersicht</header>
 <main>
     <select id="orgSelect">
         <option value="LSPD">LSPD</option>
@@ -106,9 +106,8 @@ button:hover {
         <option value="USSS">USSS</option>
     </select>
     <input type="number" id="rankInput" placeholder="Rang eingeben..." min="1">
-    <textarea id="azText" placeholder="Arbeitszeugnis hier einfügen..."></textarea>
     <div class="training-list" id="trainingList"></div>
-    <button onclick="analyzeAZ()">Auswerten</button>
+    <button onclick="analyzeRank()">Auswerten</button>
     <button onclick="resetAll()">Reset</button>
     <div id="results"></div>
     <p style="text-align:center; margin-top:20px; font-size:12px; color:#ccc;">
@@ -151,14 +150,9 @@ function renderTrainingList(rank) {
     });
 }
 
-function analyzeAZ() {
-    const text = document.getElementById('azText').value;
+function analyzeRank() {
     const org = document.getElementById('orgSelect').value;
-    let rank = parseInt(document.getElementById('rankInput').value) || null;
-    if (!rank) {
-        const match = text.match(/Rang\s*(\d+)/i);
-        if (match) rank = parseInt(match[1]);
-    }
+    const rank = parseInt(document.getElementById('rankInput').value) || null;
 
     let result = '';
     if (rank && org) {
@@ -169,14 +163,13 @@ function analyzeAZ() {
         }
         renderTrainingList(rank);
     } else {
-        result = '<p style="color:red;">Keine gültigen Daten gefunden.</p>';
+        result = '<p style="color:red;">Bitte einen gültigen Rang eingeben.</p>';
         document.getElementById('trainingList').innerHTML = '';
     }
     document.getElementById('results').innerHTML = result;
 }
 
 function resetAll() {
-    document.getElementById('azText').value = '';
     document.getElementById('rankInput').value = '';
     document.getElementById('results').innerHTML = '';
     document.getElementById('trainingList').innerHTML = '';
